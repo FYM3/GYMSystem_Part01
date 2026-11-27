@@ -8,8 +8,7 @@ namespace GYMSystem_Part01.Configurations
     {
         public void Configure(EntityTypeBuilder<Plan> builder)
         {
-            builder.Property(X => X.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
+            builder.Property(X => X.CreatedAt).HasDefaultValueSql("GETDATE()");
 
             builder.ToTable(T =>
             {

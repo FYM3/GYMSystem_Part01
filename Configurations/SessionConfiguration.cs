@@ -15,6 +15,13 @@ namespace GYMSystem_Part01.Configurations
                 .WithMany(X => X.Sessions)
                 .HasForeignKey(X => X.TrainerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.ToTable(X =>
+            {
+                X.HasCheckConstraint("ck_CapacityConstraint", "Capacity Between 1 And 25");
+                X.HasCheckConstraint("ck_StartEndDateConstraint", "EndDate > StartDate");
+            });
+
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using GYMSystem_Part01.Enums;
+﻿using GYMSystem_Part01.Entites.Enums;
 
 namespace GYMSystem_Part01.Entites
 {

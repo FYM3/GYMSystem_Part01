@@ -23,7 +23,7 @@ namespace GYMSystem_Part01.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GYMSystem_Part01.Entites.GymUser", b =>
+            modelBuilder.Entity("GYMSystem_Part01.Entites.Member", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -34,16 +34,11 @@ namespace GYMSystem_Part01.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasColumnName("HireDate")
+                        .HasColumnName("JoinDate")
                         .HasDefaultValueSql("GETDATE()");
 
                     b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -63,10 +58,13 @@ namespace GYMSystem_Part01.Migrations
                         .HasMaxLength(11)
                         .HasColumnType("nvarchar");
 
+                    b.Property<string>("Photo")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Address", "GYMSystem_Part01.Entites.GymUser.Address#Address", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Address", "GYMSystem_Part01.Entites.Member.Address#Address", b1 =>
                         {
                             b1.IsRequired();
 
@@ -84,11 +82,18 @@ namespace GYMSystem_Part01.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("GymUsers");
+                    b.HasIndex("Email")
+                        .IsUnique();
 
-                    b.HasDiscriminator().HasValue("GymUser");
+                    b.HasIndex("Phone")
+                        .IsUnique();
 
-                    b.UseTphMappingStrategy();
+                    b.ToTable("Members", t =>
+                        {
+                            t.HasCheckConstraint("GymUser_EmailCheck", "Email LIKE '%@%.com'");
+
+                            t.HasCheckConstraint("GymUser_PhoneCheck", "LEN(Phone) = 11 AND (Phone LIKE '010%' OR Phone LIKE '011%' OR Phone LIKE '012%' OR Phone LIKE '015%')");
+                        });
                 });
 
             modelBuilder.Entity("GYMSystem_Part01.Entites.MemberShip", b =>
@@ -125,7 +130,7 @@ namespace GYMSystem_Part01.Migrations
 
                     b.HasIndex("PlanId");
 
-                    b.ToTable("Memberships");
+                    b.ToTable("MemberShip");
                 });
 
             modelBuilder.Entity("GYMSystem_Part01.Entites.Plan", b =>
@@ -205,38 +210,72 @@ namespace GYMSystem_Part01.Migrations
 
                     b.HasIndex("TrainerId");
 
-                    b.ToTable("Session");
-                });
-
-            modelBuilder.Entity("GYMSystem_Part01.Entites.Member", b =>
-                {
-                    b.HasBaseType("GYMSystem_Part01.Entites.GymUser");
-
-                    b.Property<string>("Photo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("Phone")
-                        .IsUnique();
-
-                    b.ToTable(t =>
+                    b.ToTable("Sessions", t =>
                         {
-                            t.HasCheckConstraint("GymUser_EmailCheck", "Email LIKE '%@%.com'");
+                            t.HasCheckConstraint("ck_CapacityConstraint", "Capacity Between 1 And 25");
 
-                            t.HasCheckConstraint("GymUser_PhoneCheck", "LEN(Phone) = 11 AND (Phone LIKE '010%' OR Phone LIKE '011%' OR Phone LIKE '012%' OR Phone LIKE '015%')");
+                            t.HasCheckConstraint("ck_StartEndDateConstraint", "EndDate > StartDate");
                         });
-
-                    b.HasDiscriminator().HasValue("Member");
                 });
 
             modelBuilder.Entity("GYMSystem_Part01.Entites.Trainer", b =>
                 {
-                    b.HasBaseType("GYMSystem_Part01.Entites.GymUser");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("HireDate")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<DateOnly>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("nvarchar");
 
                     b.Property<int>("Specailty")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.ComplexProperty<Dictionary<string, object>>("Address", "GYMSystem_Part01.Entites.Trainer.Address#Address", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<int>("BuildingNumber")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+                        });
+
+                    b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -244,14 +283,14 @@ namespace GYMSystem_Part01.Migrations
                     b.HasIndex("Phone")
                         .IsUnique();
 
-                    b.ToTable(t =>
+                    b.ToTable("Trainers", t =>
                         {
-                            t.HasCheckConstraint("GymUser_EmailCheck", "Email LIKE '%@%.com'");
+                            t.HasCheckConstraint("GymUser_EmailCheck", "Email LIKE '%@%.com'")
+                                .HasName("GymUser_EmailCheck1");
 
-                            t.HasCheckConstraint("GymUser_PhoneCheck", "LEN(Phone) = 11 AND (Phone LIKE '010%' OR Phone LIKE '011%' OR Phone LIKE '012%' OR Phone LIKE '015%')");
+                            t.HasCheckConstraint("GymUser_PhoneCheck", "LEN(Phone) = 11 AND (Phone LIKE '010%' OR Phone LIKE '011%' OR Phone LIKE '012%' OR Phone LIKE '015%')")
+                                .HasName("GymUser_PhoneCheck1");
                         });
-
-                    b.HasDiscriminator().HasValue("Trainer");
                 });
 
             modelBuilder.Entity("GYMSystem_Part01.Entites.MemberShip", b =>
@@ -284,14 +323,14 @@ namespace GYMSystem_Part01.Migrations
                     b.Navigation("Trainer");
                 });
 
-            modelBuilder.Entity("GYMSystem_Part01.Entites.Plan", b =>
-                {
-                    b.Navigation("PlanSubscription");
-                });
-
             modelBuilder.Entity("GYMSystem_Part01.Entites.Member", b =>
                 {
                     b.Navigation("MemberSubscription");
+                });
+
+            modelBuilder.Entity("GYMSystem_Part01.Entites.Plan", b =>
+                {
+                    b.Navigation("PlanSubscription");
                 });
 
             modelBuilder.Entity("GYMSystem_Part01.Entites.Trainer", b =>

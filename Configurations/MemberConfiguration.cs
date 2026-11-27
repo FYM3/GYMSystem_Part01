@@ -8,9 +8,8 @@ namespace GYMSystem_Part01.Configurations
     {
         public new void Configure(EntityTypeBuilder<Member> builder)
         {
-            builder.Property(X => X.CreatedAt)
-                .HasColumnName("JoinDate")
-                .HasDefaultValueSql("GETDATE()");
+            builder.Property(X => X.CreatedAt).HasColumnName("JoinDate")
+                                              .HasDefaultValueSql("GETDATE()");
 
             base.Configure(builder);
         }

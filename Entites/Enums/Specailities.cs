@@ -1,4 +1,4 @@
-﻿namespace GYMSystem_Part01.Enums
+﻿namespace GYMSystem_Part01.Entites.Enums
 {
     public enum Specailities
     {

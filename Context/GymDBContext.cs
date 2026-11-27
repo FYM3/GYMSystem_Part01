@@ -18,10 +18,9 @@ namespace GYMSystem_Part01.Context
 
         #region DbSets
 
-        public DbSet<GymUser> GymUsers { get; set; } = default!;
           public DbSet<Member> Members { get; set; } = default!;
           public DbSet<Plan> Plans { get; set; } = default!;
-          public DbSet<MemberShip> Memberships { get; set; } = default!;
+          public DbSet<Session> Sessions { get; set; } = default!;
           public DbSet<Trainer> Trainers { get; set; } = default!;
 
         #endregion
